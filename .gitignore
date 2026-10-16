@@ -1,0 +1,9 @@
+# Documents confidentiels et archives
+conf/
+*.pdf
+*.docx
+*.doc
+*.xlsx
+*.xls
+.DS_Store
+Thumbs.db
