@@ -165,3 +165,61 @@ document.addEventListener('DOMContentLoaded', function () {
 
   document.addEventListener('DOMContentLoaded', initCountdowns);
 })();
+
+// Inscription Newsletter via Web3Forms
+document.addEventListener('DOMContentLoaded', function () {
+  var forms = document.querySelectorAll('.newsletter-form');
+  forms.forEach(function (form) {
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      var emailInput = form.querySelector('input[type="email"]');
+      var statusEl = form.querySelector('.newsletter-status');
+      var btn = form.querySelector('button[type="submit"]');
+      if (!emailInput || !emailInput.value) return;
+
+      var emailVal = emailInput.value.trim();
+      var origBtnText = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = 'Envoi…';
+      if (statusEl) {
+        statusEl.textContent = 'Inscription en cours…';
+        statusEl.className = 'newsletter-status';
+      }
+
+      try {
+        var formData = new FormData();
+        formData.append('access_key', 'd8cf37e6-7263-4f91-9faf-11607939c164');
+        formData.append('subject', 'Nouvelle inscription Newsletter ADESEN');
+        formData.append('from_name', 'Site Web ADESEN');
+        formData.append('email', emailVal);
+        formData.append('message', 'Nouvelle inscription à la newsletter ADESEN avec l\'adresse email : ' + emailVal);
+
+        var res = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          body: formData
+        });
+        var data = await res.json();
+        if (data.success) {
+          if (statusEl) {
+            statusEl.textContent = '✓ Merci ! Vous êtes bien inscrit(e).';
+            statusEl.className = 'newsletter-status ok';
+          }
+          emailInput.value = '';
+        } else {
+          if (statusEl) {
+            statusEl.textContent = 'Une erreur est survenue. Veuillez réessayer.';
+            statusEl.className = 'newsletter-status err';
+          }
+        }
+      } catch (err) {
+        if (statusEl) {
+          statusEl.textContent = 'Erreur réseau. Veuillez réessayer.';
+          statusEl.className = 'newsletter-status err';
+        }
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = origBtnText;
+      }
+    });
+  });
+});
