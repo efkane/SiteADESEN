@@ -7,3 +7,5 @@ conf/
 *.xls
 .DS_Store
 Thumbs.db
+*.backup.html
+formulaire-bureau.html
