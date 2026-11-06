@@ -132,6 +132,19 @@ document.getElementById('contactForm').addEventListener('submit', async function
     if (data.success) {
       status.textContent = 'Merci ! Ton message a bien été envoyé. Nous te répondrons rapidement.';
       status.className = 'form-status ok';
+      if (typeof window.gtag === 'function') {
+        const sujetSelect = document.getElementById('sujet');
+        const sujetVal = sujetSelect ? sujetSelect.value : 'Général';
+        window.gtag('event', 'contact_form_submit', {
+          event_category: 'Contact',
+          event_label: sujetVal,
+          subject: sujetVal
+        });
+        window.gtag('event', 'generate_lead', {
+          lead_type: 'contact_form',
+          subject: sujetVal
+        });
+      }
       form.reset();
     } else {
       status.textContent = "Une erreur est survenue. Réessaie ou écris-nous à adesen2024@gmail.com.";

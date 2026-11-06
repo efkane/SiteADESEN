@@ -204,6 +204,15 @@ document.addEventListener('DOMContentLoaded', function () {
             statusEl.textContent = '✓ Merci ! Vous êtes bien inscrit(e).';
             statusEl.className = 'newsletter-status ok';
           }
+          if (typeof window.gtag === 'function') {
+            window.gtag('event', 'newsletter_signup', {
+              event_category: 'Engagement',
+              event_label: 'Newsletter Footer'
+            });
+            window.gtag('event', 'generate_lead', {
+              lead_type: 'newsletter'
+            });
+          }
           emailInput.value = '';
         } else {
           if (statusEl) {
@@ -223,3 +232,77 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 });
+
+// ====== SUIVI DES ÉVÉNEMENTS CLÉS & CONVERSIONS GOOGLE ANALYTICS ======
+document.addEventListener('click', function (e) {
+  var a = e.target.closest('a');
+  if (!a || !a.href) return;
+
+  var href = a.href;
+  var text = (a.textContent || '').trim().substring(0, 60);
+
+  // 1. Demande de Kit de Solidarité (Google Forms)
+  if (href.indexOf('docs.google.com/forms') !== -1 || href.indexOf('forms.gle') !== -1) {
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'kit_solidarite_click', {
+        event_category: 'Solidarité',
+        event_label: text || 'Demande Kit Solidaire',
+        link_url: href
+      });
+      window.gtag('event', 'generate_lead', {
+        lead_type: 'kit_solidarite'
+      });
+    }
+  }
+
+  // 2. Adhésion ou Cotisation (HelloAsso)
+  else if (href.indexOf('helloasso.com') !== -1 && (href.indexOf('adhesion') !== -1 || href.indexOf('cotisation') !== -1)) {
+    var type = href.indexOf('cotisation') !== -1 ? 'cotisation' : 'adhesion';
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'adhesion_click', {
+        event_category: 'Adhésion',
+        event_label: text || type,
+        adhesion_type: type,
+        link_url: href
+      });
+      window.gtag('event', 'begin_checkout', {
+        item_name: 'Adhésion / Cotisation ADESEN'
+      });
+    }
+  }
+
+  // 3. Faire un don (HelloAsso)
+  else if (href.indexOf('helloasso.com') !== -1 && href.indexOf('don') !== -1) {
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'don_click', {
+        event_category: 'Don',
+        event_label: text || 'Faire un don',
+        link_url: href
+      });
+    }
+  }
+
+  // 4. Contact direct (WhatsApp, Mailto, Téléphone)
+  else if (href.indexOf('wa.me') !== -1 || href.indexOf('whatsapp.com') !== -1) {
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'contact_whatsapp_click', {
+        event_category: 'Contact Direct',
+        link_url: href
+      });
+    }
+  } else if (href.indexOf('mailto:') === 0) {
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'contact_email_click', {
+        event_category: 'Contact Direct',
+        email: href.replace('mailto:', '')
+      });
+    }
+  } else if (href.indexOf('tel:') === 0) {
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'contact_phone_click', {
+        event_category: 'Contact Direct',
+        phone: href.replace('tel:', '')
+      });
+    }
+  }
+}, { passive: true });
